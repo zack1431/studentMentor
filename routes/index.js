@@ -83,10 +83,10 @@ router.delete('/mentor/:id', async function(req, res, next) {
 });
 
 router.get('/nonAssignedStd', async (req, res,)=> {
-  await client.connect()
+  // await client.connect()
   try {
-    const db = await client.db(dbName)
-    let users = await db.collection('student_master').find({mentor_id:{$eq:null}}).toArray()
+    // const db = await client.db(dbName)
+    let users = await studentRequest.find({mentor_id:{$eq:null}}).exec()
     res.send({
       statusCode:200,
       users
@@ -97,9 +97,6 @@ router.get('/nonAssignedStd', async (req, res,)=> {
       statusCode:500,
       message:"Internal server error"
     })
-  }
-  finally{
-    client.close()
   }
 });
 
@@ -188,20 +185,20 @@ router.delete('/student/:id', async function(req, res, next) {
 
 // assign multi student with one mentor
 router.post('/assignMulti/:id',async (req,res)=>{
-  await client.connect();
   try {
-    const db = await client.db(dbName);
     var data = [];
-    req.body.forEach(val =>{
-      data.push(mongodb.ObjectId(val._id))
+    var temp = [];
+    temp = JSON.parse(req.body.temp);
+    temp.forEach(val =>{
+      data.push(mongodb.ObjectId(val))
     })
     console.log(data)
-    let users = await db.collection('student_master').updateMany({"_id":{$in:data}},{$set:{"mentor_id":req.params.id}})
+    let users = await studentRequest.updateMany({"_id":{$in:data}},{$set:{"mentor_id":req.params.id}})
 
     res.send({
       statusCode:200,
-      message:"Student created Successfully!",
-      data:users
+      message:"Student Assigned Successfully!",
+      users
     })
   } catch (error) {
       console.log(error)
@@ -209,9 +206,6 @@ router.post('/assignMulti/:id',async (req,res)=>{
         statusCode:500,
         message:"Internal server error"
       })
-  }
-  finally{
-    client.close()
   }
 })
 
