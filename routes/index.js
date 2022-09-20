@@ -194,11 +194,11 @@ router.post('/assignMulti/:id',async (req,res)=>{
     })
     console.log(data)
     let users = await studentRequest.updateMany({"_id":{$in:data}},{$set:{"mentor_id":req.params.id}})
-
+    let getUpdated = await studentRequest.find({"_id":mongodb.ObjectId(data)})
     res.send({
       statusCode:200,
       message:"Student Assigned Successfully!",
-      users
+      getUpdated
     })
   } catch (error) {
       console.log(error)
